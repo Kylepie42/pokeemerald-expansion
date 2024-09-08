@@ -2422,3 +2422,21 @@ static u8 TrySpinPlayerForWarp(struct ObjectEvent *object, s16 *delayTimer)
     *delayTimer = 0;
     return sSpinDirections[object->facingDirection];
 }
+
+
+void TransformPlayer()
+{
+    if(!FlagGet(FLAG_TEMP_F))
+    {
+        FlagSet(FLAG_TEMP_F);
+        struct ObjectEvent *objEvent = &gObjectEvents[gPlayerAvatar.objectEventId];
+        FollowerSetGraphics(objEvent, SPECIES_MUDKIP, 0, FALSE);
+        SetPlayerAvatarStateMask(PLAYER_AVATAR_FLAG_ON_FOOT);
+    }
+    else
+    {
+        FlagClear(FLAG_TEMP_F);
+        struct ObjectEvent *objEvent = &gObjectEvents[gPlayerAvatar.objectEventId];
+        ObjectEventSetGraphics(objEvent, GetObjectEventGraphicsInfo(OBJ_EVENT_GFX_BRENDAN_NORMAL));
+    }
+}

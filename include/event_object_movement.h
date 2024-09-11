@@ -488,4 +488,10 @@ bool32 IsVirtualObjectAnimating(u8 virtualObjId);
 bool8 MovementAction_EmoteX_Step0(struct ObjectEvent *, struct Sprite *);
 bool8 MovementAction_EmoteDoubleExclamationMark_Step0(struct ObjectEvent *, struct Sprite *);
 
+void ObjectEventSetGraphics(struct ObjectEvent *, const struct ObjectEventGraphicsInfo *);
+void FollowerSetGraphics(struct ObjectEvent *, u16, u8, bool8);
+void RemoveObjectEvent(struct ObjectEvent *objectEvent);
+
+bool8 GetFollowerInfo(u16 *species, u8 *form, u8 *shiny);
+
 #endif //GUARD_EVENT_OBJECT_MOVEMENT_H

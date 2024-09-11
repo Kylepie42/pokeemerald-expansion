@@ -156,6 +156,10 @@ static bool32 IsMetatileLand(s16, s16, u32);
 
 static u8 TrySpinPlayerForWarp(struct ObjectEvent *, s16 *);
 
+void TransformPlayer(void);
+u8 InitPseudoPlayer(s16 x, s16 y, u8 direction, u8 gender);
+void SetCameraLocation(int x, int y);
+
 static bool8 (*const sForcedMovementTestFuncs[NUM_FORCED_MOVEMENTS])(u8) =
 {
     MetatileBehavior_IsTrickHouseSlipperyFloor,
@@ -2424,19 +2428,77 @@ static u8 TrySpinPlayerForWarp(struct ObjectEvent *object, s16 *delayTimer)
 }
 
 
-void TransformPlayer()
+void TransformPlayer(void)
 {
     if(!FlagGet(FLAG_TEMP_F))
     {
         FlagSet(FLAG_TEMP_F);
-        struct ObjectEvent *objEvent = &gObjectEvents[gPlayerAvatar.objectEventId];
-        FollowerSetGraphics(objEvent, SPECIES_MUDKIP, 0, FALSE);
+        struct ObjectEvent *playerObjectEvent = &gObjectEvents[gPlayerAvatar.objectEventId];
+        u16 species;
+        bool8 shiny;
+        u8 form;
+        GetFollowerInfo(&species, &shiny, &form);
+
+        MoveObjectEventToMapCoords(playerObjectEvent, (int)playerObjectEvent->currentCoords.x, (int)playerObjectEvent->currentCoords.y - 1);
+        MoveCameraAndRedrawMap(0, -1);
+        FlagSet(FLAG_TEMP_HIDE_FOLLOWER);
+        UpdateFollowingPokemon();
+
+        u8 pseudoPlayerId = InitPseudoPlayer(playerObjectEvent->currentCoords.x, (int)playerObjectEvent->currentCoords.y + 1, playerObjectEvent->movementDirection, gPlayerAvatar.gender);
+        VarSet(VAR_TEMP_A, pseudoPlayerId);
+        
+        FollowerSetGraphics(playerObjectEvent, species, 0, FALSE);
         SetPlayerAvatarStateMask(PLAYER_AVATAR_FLAG_ON_FOOT);
     }
     else
     {
         FlagClear(FLAG_TEMP_F);
-        struct ObjectEvent *objEvent = &gObjectEvents[gPlayerAvatar.objectEventId];
-        ObjectEventSetGraphics(objEvent, GetObjectEventGraphicsInfo(OBJ_EVENT_GFX_BRENDAN_NORMAL));
+        struct ObjectEvent *playerObjectEvent = &gObjectEvents[gPlayerAvatar.objectEventId];
+        struct ObjectEvent *pseudoPlayerObject = &gObjectEvents[VarGet(VAR_TEMP_A)];
+
+        FlagClear(FLAG_TEMP_HIDE_FOLLOWER);
+        UpdateFollowingPokemon();
+
+        MoveCameraAndRedrawMap((int)pseudoPlayerObject->currentCoords.x - (int)playerObjectEvent->currentCoords.x, (int)pseudoPlayerObject->currentCoords.y - (int)playerObjectEvent->currentCoords.y + 1);
+        MoveObjectEventToMapCoords(playerObjectEvent, (int)pseudoPlayerObject->currentCoords.x, (int)pseudoPlayerObject->currentCoords.y + 1);
+        ObjectEventSetGraphics(playerObjectEvent, GetObjectEventGraphicsInfo(OBJ_EVENT_GFX_BRENDAN_NORMAL));
+        playerObjectEvent->facingDirection = DIR_SOUTH;
+
+        struct ObjectEvent *followerObj = GetFollowerObject();
+        MoveObjectEventToMapCoords(followerObj, (int)pseudoPlayerObject->currentCoords.x, (int)pseudoPlayerObject->currentCoords.y);
+
+        RemoveObjectEvent(pseudoPlayerObject);
     }
+}
+
+void SetCameraLocation(int x, int y)
+{
+    gSaveBlock1Ptr->pos.x = x;
+    gSaveBlock1Ptr->pos.y = y;
+}
+
+u8 InitPseudoPlayer(s16 x, s16 y, u8 direction, u8 gender)
+{
+    struct ObjectEventTemplate playerObjEventTemplate;
+    u8 objectEventId;
+    struct ObjectEvent *objectEvent;
+
+    playerObjEventTemplate.localId = 10;
+    playerObjEventTemplate.graphicsId = GetPlayerAvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gender);
+    playerObjEventTemplate.x = x - MAP_OFFSET;
+    playerObjEventTemplate.y = y - MAP_OFFSET;
+    playerObjEventTemplate.elevation = 0;
+    playerObjEventTemplate.movementType = MOVEMENT_TYPE_PLAYER;
+    playerObjEventTemplate.movementRangeX = 0;
+    playerObjEventTemplate.movementRangeY = 0;
+    playerObjEventTemplate.trainerType = TRAINER_TYPE_NONE;
+    playerObjEventTemplate.trainerRange_berryTreeId = 0;
+    playerObjEventTemplate.script = NULL;
+    playerObjEventTemplate.flagId = 0;
+    objectEventId = SpawnSpecialObjectEvent(&playerObjEventTemplate);
+    objectEvent = &gObjectEvents[objectEventId];
+    //objectEvent->warpArrowSpriteId = CreateWarpArrowSprite();
+    ObjectEventTurn(objectEvent, direction);
+
+    return objectEventId;
 }

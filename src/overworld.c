@@ -121,7 +121,7 @@ static void OffsetCameraFocusByLinkPlayerId(void);
 static void SpawnLinkPlayers(void);
 static void SetCameraToTrackGuestPlayer(void);
 static void ResumeMap(bool32);
-static void SetCameraToTrackPlayer(void);
+void SetCameraToTrackPlayer(void);
 static void InitObjectEventsReturnToField(void);
 static void InitViewGraphics(void);
 static void SetCameraToTrackGuestPlayer_2(void);
@@ -2237,7 +2237,7 @@ static void InitObjectEventsReturnToField(void)
     RunOnReturnToFieldMapScript();
 }
 
-static void SetCameraToTrackPlayer(void)
+void SetCameraToTrackPlayer(void)
 {
     gObjectEvents[gPlayerAvatar.objectEventId].trackedByCamera = TRUE;
     InitCameraUpdateCallback(gPlayerAvatar.spriteId);

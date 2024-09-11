@@ -1439,6 +1439,7 @@ static s8 *GetCurrentPartySlotPtr(void)
 
 static void HandleChooseMonSelection(u8 taskId, s8 *slotPtr)
 {
+    u8 pointer = (int)slotPtr;
     if (*slotPtr == PARTY_SIZE)
     {
         gPartyMenu.task(taskId);
@@ -1495,6 +1496,7 @@ static void HandleChooseMonSelection(u8 taskId, s8 *slotPtr)
             break;
         case PARTY_ACTION_CHOOSE_AND_CLOSE:
             PlaySE(SE_SELECT);
+            VarSet(VAR_TEMP_8, pointer);
             Task_ClosePartyMenu(taskId);
             break;
         case PARTY_ACTION_MINIGAME:

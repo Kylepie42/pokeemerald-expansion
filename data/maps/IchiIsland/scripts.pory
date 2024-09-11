@@ -8,6 +8,50 @@ script TransformPlayerIntoMudkip{
 	fadescreen(FADE_FROM_BLACK)
 }
 
-script DoEVTrainingTask{
-	
+script GiveMons{
+	givemon(SPECIES_MUDKIP, 5)
+	givemon(SPECIES_TREECKO, 5)
+	givemon(SPECIES_TORCHIC, 5)
+	setflag(FLAG_SYS_POKEMON_GET)
+}
+
+script DoEVTraining{
+	lockall
+
+	if(!flag(FLAG_TEMP_F)){
+		msgbox("Send your follower out to train?", MSGBOX_YESNO)
+		waitmessage
+		// if(var(VAR_RESULT) == 1){
+		// 	msgbox("Choose a Pokemon to Train.")
+		// 	waitmessage
+		// 	special(ChoosePartyMon)
+		// 	copyvar(VAR_0x800A, VAR_0x8004)
+		// 	if(var(VAR_0x800A) != PARTY_NOTHING_CHOSEN){
+		// 		copyvar(VAR_0x8005, VAR_0x800A)
+		// 		specialvar(VAR_RESULT, GetTradeSpecies)
+		// 	}
+		// 	setvar(VAR_TEMP_D, VAR_RESULT)
+
+		// 	fadescreen(FADE_TO_BLACK)
+		// 	delay(15)
+		// 	setflag(FLAG_TEMP_HIDE_FOLLOWER)
+		// 	special(TransformPlayer)
+		// 	delay(15)
+		// 	fadescreen(FADE_FROM_BLACK)
+		// }
+		fadescreen(FADE_TO_BLACK)
+		delay(15)
+		special(TransformPlayer)
+		delay(15)
+		fadescreen(FADE_FROM_BLACK)
+	}
+	else{
+		fadescreen(FADE_TO_BLACK)
+		delay(15)
+		special(TransformPlayer)
+		delay(15)
+		fadescreen(FADE_FROM_BLACK)
+	}
+
+	releaseall
 }
